@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>거지키우기 미니게임</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <style>
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background: #f7f7e7;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    #money {
+      font-size: 2em;
+      margin: 20px 0;
+      font-weight: 700;
+      color: #c9a227;
+      letter-spacing: 1px;
+      word-break: keep-all;
+    }
+    .button-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin: 30px 0 0 0;
+      width: 100%;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    button {
+      min-width: 140px;
+      max-width: 100%;
+      width: 100%;
+      font-size: 1.15em;
+      padding: 12px 0;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffe066;
+      color: #7c5c00;
+      font-weight: 600;
+      transition: background-color 0.2s, font-size 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
+    }
+    button span {
+      font-size: inherit;
+    }
+    button:active {
+      font-size: 1.08em;
+    }
+    button:hover {
+      background-color: #ffd600;
+    }
+    .img-row {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin: 30px 0 10px 0;
+      flex-wrap: wrap;
+    }
+    .img-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .label {
+      margin-top: 8px;
+      font-size: 1em;
+      color: #444;
+      font-weight: 600;
+    }
+    #log {
+      color: #888;
+      font-size: 0.9em;
+      margin-top: 30px;
+      min-height: 1.2em;
+      word-break: keep-all;
+    }
+    #beggar {
+      transition: transform 0.15s cubic-bezier(0.4, 2, 0.6, 1);
+      will-change: transform;
+      display: inline-block;
+      position: relative;
+    }
+    #coin-container {
+      position: absolute;
+      left: 50%;
+      top: 10px;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+      z-index: 10;
+    }
+    .coin {
+      position: absolute;
+      left: -12px;
+      top: 0;
+      width: 24px;
+      height: 24px;
+      opacity: 1;
+      animation: coinUp 0.8s forwards;
+    }
+    @keyframes coinUp {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      80% {
+        transform: translateY(-60px) scale(1.2);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-80px) scale(0.8);
+        opacity: 0;
+      }
+    }
+    .beg-upgrade-info {
+      font-size: 1em;
+      color: #a77c00;
+      margin-bottom: 8px;
+      line-height: 1.3;
+      font-weight: 700;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      white-space: nowrap;
+      overflow-x: auto;
+      text-overflow: ellipsis;
+      letter-spacing: 0.2px;
+    }
+    .estate-info {
+      font-size: 1.05em;
+      color: #9b6c00;
+      margin: 8px 0 18px 0;
+      font-weight: 700;
+    }
+    @media (max-width: 600px) {
+      .img-row {
+        gap: 12px;
+      }
+      .beg-upgrade-info {
+        font-size: 0.93em;
+        max-width: 99vw;
+      }
+      button {
+        font-size: 1em;
+        min-width: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>거지키우기 미니게임</h1>
+  <div class="img-row">
+    <div class="img-col">
+      <div id="beggar">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <ellipse cx="40" cy="50" rx="22" ry="18" fill="#bca37f" />
+          <circle cx="40" cy="37" r="18" fill="#f3d6b6" stroke="#9c7a4f" stroke-width="2"/>
+          <ellipse cx="40" cy="60" rx="10" ry="4" fill="#a67c52" />
+          <ellipse cx="34" cy="35" rx="2" ry="2.5" fill="#333" />
+          <ellipse cx="46" cy="35" rx="2" ry="2.5" fill="#333" />
+          <path d="M36 43 Q40 47 44 43" stroke="#a67c52" stroke-width="2" fill="none"/>
+          <rect x="30" y="65" width="20" height="8" rx="3" fill="#8d6747" />
+          <rect x="36" y="68" width="8" height="4" rx="2" fill="#e8cfa1" />
+        </svg>
+        <div id="coin-container"></div>
+      </div>
+      <div class="label">구걸 캐릭터</div>
+    </div>
+    <div class="img-col">
+      <svg width="80" height="80" viewBox="0 0 80 80">
+        <ellipse cx="40" cy="50" rx="22" ry="18" fill="#dbeafe" />
+        <circle cx="40" cy="37" r="15" fill="#ffe5b4" stroke="#888" stroke-width="2"/>
+        <ellipse cx="34" cy="35" rx="2" ry="2.5" fill="#333" />
+        <ellipse cx="46" cy="35" rx="2" ry="2.5" fill="#333" />
+        <rect x="32" y="55" width="16" height="8" rx="3" fill="#8ecae6" />
+        <rect x="36" y="58" width="8" height="4" rx="2" fill="#bde0fe" />
+        <rect x="33" y="29" width="14" height="6" rx="3" fill="#bde0fe" />
+      </svg>
+      <div class="label">알바생</div>
+    </div>
+    <div class="img-col">
+      <svg width="80" height="80" viewBox="0 0 80 80">
+        <rect x="20" y="30" width="40" height="40" fill="#b2b2b2" stroke="#888" stroke-width="2"/>
+        <rect x="30" y="50" width="8" height="20" fill="#fff" />
+        <rect x="42" y="50" width="8" height="20" fill="#fff" />
+        <rect x="20" y="30" width="40" height="10" fill="#a3cef1" />
+        <rect x="36" y="60" width="8" height="10" fill="#ffe066" />
+        <rect x="25" y="35" width="6" height="6" fill="#fff" />
+        <rect x="49" y="35" width="6" height="6" fill="#fff" />
+      </svg>
+      <div class="label">부동산</div>
+    </div>
+  </div>
+  <div id="money">💰 0 원</div>
+  <div class="beg-upgrade-info" id="beg-upgrade-info">
+    구걸 레벨: 1 | 알바생: 0명 | 클릭당 수익: 1원 | 초당 수익: 0원
+  </div>
+  <div class="estate-info" id="estate-info">
+    부동산: 0채
+  </div>
+  <div class="button-list">
+    <button onclick="earnMoney()">구걸하기</button>
+    <button onclick="upgradeBeg()">구걸 업그레이드 (<span id="beg-upgrade-cost">10</span>원)</button>
+    <button onclick="buyHelper()">알바생 고용 (<span id="helper-cost">10,030</span>원)</button>
+    <button onclick="buyHouse()">부동산 구매 (<span id="house-cost">500,000</span>원)</button>
+  </div>
+  <div id="log"></div>
+  <script>
+    // 4자리마다 콤마를 붙이는 함수
+    function formatNumber4(num) {
+      const str = num.toString();
+      let result = '';
+      let count = 0;
+      for (let i = str.length - 1; i >= 0; i--) {
+        result = str[i] + result;
+        count++;
+        if (count === 4 && i !== 0) {
+          result = ',' + result;
+          count = 0;
+        }
+      }
+      return result;
+    }
+
+    let money = 0;
+    let helper = 0;
+    let house = 0;
+
+    // 구걸 업그레이드 관련 변수
+    let begLevel = 1;
+    let begAmount = 1;
+    let begUpgradeCost = 10;
+
+    // 알바생 관련 변수
+    let helperCost = 10030; // 알바생 고용비용(초기값 10,030원)
+    let helperCostRatio = 1.7; // 고용비용 증가 배율
+    let helperIncomeStart = 1000; // 알바생 1명당 초당 수익(기본)
+    let helperIncomeRatio = 1.3; // 알바생 초당 수익 증가 배율
+    let helperIncomes = []; // 각 알바생의 초당 수익 배열
+
+    // 부동산 관련 변수
+    let houseCost = 500000; // 부동산 구매 초기 비용
+    let houseCostRatio = 1.8;   // 부동산 구매비용 증가 배율
+    let houseIncomeStart = 50000; // 부동산 1채당 초당 수익(기본)
+    let houseIncomeRatio = 1.3; // 부동산 초당 수익 증가 배율
+    let houseIncomes = []; // 각 부동산의 초당 수익 배열
+
+    function updateScreen(msg = "") {
+      // 초당 수익 계산
+      let totalHelperIncome = helperIncomes.reduce((a, b) => a + b, 0);
+      let totalHouseIncome = houseIncomes.reduce((a, b) => a + b, 0);
+      let totalSecIncome = totalHelperIncome + totalHouseIncome;
+
+      document.getElementById("money").innerText = `💰 ${formatNumber4(money)} 원`;
+      document.getElementById("beg-upgrade-info").innerHTML =
+        `구걸 레벨: <strong>${begLevel}</strong> | 알바생: <strong>${helper}</strong>명 | ` +
+        `클릭당 수익: <strong>${formatNumber4(begAmount)}</strong>원 | 초당 수익: <strong>${formatNumber4(totalSecIncome)}</strong>원`;
+      document.getElementById("estate-info").innerHTML = `부동산: <strong>${formatNumber4(house)}</strong>채`;
+      document.getElementById("beg-upgrade-cost").innerText = formatNumber4(begUpgradeCost);
+      document.getElementById("helper-cost").innerText = formatNumber4(helperCost);
+      document.getElementById("house-cost").innerText = formatNumber4(houseCost);
+      if (msg) document.getElementById("log").innerText = msg;
+    }
+
+    // 구걸 캐릭터 모션
+    function beggarMotion() {
+      const beggar = document.getElementById("beggar");
+      beggar.style.transform = "translateY(-18px)";
+      setTimeout(() => {
+        beggar.style.transform = "translateY(0)";
+      }, 150);
+    }
+
+    // 동전 애니메이션
+    function showCoin() {
+      const coinContainer = document.getElementById("coin-container");
+      const coin = document.createElement("div");
+      coin.className = "coin";
+      coin.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="11" fill="#ffe066" stroke="#c9a227" stroke-width="2"/>
+          <text x="12" y="17" font-size="12" text-anchor="middle" fill="#c9a227" font-family="Arial">₩</text>
+        </svg>
+      `;
+      coinContainer.appendChild(coin);
+      setTimeout(() => coin.remove(), 800);
+    }
+
+    function earnMoney() {
+      money += begAmount;
+      updateScreen();
+      beggarMotion();
+      showCoin();
+    }
+
+    // 구걸 업그레이드
+    function upgradeBeg() {
+      if (money >= begUpgradeCost) {
+        money -= begUpgradeCost;
+        begLevel += 1;
+        begAmount = Math.ceil(begAmount * 1.8); // 1.8배씩 증가 (올림)
+        begUpgradeCost = Math.floor(begUpgradeCost * 1.8); // 업그레이드 비용 1.8배씩 증가 (내림)
+        updateScreen("구걸하기가 더 강력해졌습니다!");
+      } else {
+        updateScreen("돈이 부족합니다!");
+      }
+    }
+
+    // 알바생 고용
+    function buyHelper() {
+      if (money >= helperCost) {
+        money -= helperCost;
+        helper += 1;
+        // 새 알바생의 초당 수익은 이전 알바생의 수익 * 1.3, 첫 알바생은 1000원
+        let newIncome = helperIncomes.length === 0
+          ? helperIncomeStart
+          : Math.floor(helperIncomes[helperIncomes.length - 1] * helperIncomeRatio);
+        helperIncomes.push(newIncome);
+        helperCost = Math.floor(helperCost * helperCostRatio);
+        updateScreen("알바생을 고용했습니다!");
+      } else {
+        updateScreen("돈이 부족합니다!");
+      }
+    }
+
+    // 부동산
+    function buyHouse() {
+      if (money >= houseCost) {
+        money -= houseCost;
+        house += 1;
+        // 새 부동산의 초당 수익은 이전 부동산의 수익 * 1.3, 첫 부동산은 50000원
+        let newIncome = houseIncomes.length === 0
+          ? houseIncomeStart
+          : Math.floor(houseIncomes[houseIncomes.length - 1] * houseIncomeRatio);
+        houseIncomes.push(newIncome);
+        houseCost = Math.floor(houseCost * houseCostRatio);
+        updateScreen("부동산을 샀습니다! (자동 +" + formatNumber4(newIncome) + "원/초)");
+      } else {
+        updateScreen("돈이 부족합니다!");
+      }
+    }
+
+    setInterval(() => {
+      let autoIncome =
+        helperIncomes.reduce((a, b) => a + b, 0) +
+        houseIncomes.reduce((a, b) => a + b, 0);
+      if (autoIncome > 0) {
+        money += autoIncome;
+        updateScreen();
+      }
+    }, 1000);
+
+    updateScreen("거지를 키워 부자가 되어보세요!");
+  </script>
+</body>
+</html>
